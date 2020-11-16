@@ -1,47 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:water_reminder/constants.dart';
-import 'package:water_reminder/screens/dayReport/Day.dart';
-import 'components/cup_items_list.dart';
-import 'components/water_progress_indicator.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'components/wave_background.dart';
 import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:water_reminder/screens/dayReport/Day.dart';
+import 'package:water_reminder/constants.dart';
+import 'package:water_reminder/screens/home/components/cup_items_list.dart';
+import 'package:water_reminder/screens/home/components/water_progress_indicator.dart';
+import 'package:water_reminder/screens/home/components/wave_background.dart';
 
 class Home extends StatefulWidget {
-  final Box appSettings;
-
-  const Home({Key key, @required this.appSettings}) : super(key: key);
+  const Home({Key key}) : super(key: key);
   @override
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  SharedPreferences prefs;
-  int selectedCup;
-  String selectedCupIcon;
-  double drinked;
-
   DateTime now = new DateTime.now();
   String todayString = DateFormat.MMMMEEEEd().format(DateTime.now());
 
   @override
   void initState() {
     super.initState();
-
-    this.drinked = 0;
-    getPrefs();
-  }
-
-  refresh() {
-    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    selectedCup = prefs.getInt('selected_cup') ?? CupDefaultSize;
-    selectedCupIcon = prefs.getString('selected_cup_icon') ?? CupDefaultIcon;
+    return ValueListenableBuilder(
+        valueListenable: Hive.box(settingsBoxName).listenable(),
+        builder: _builderWithBox
+    );
+  }
+
+
+  Widget _builderWithBox(BuildContext context, Box settingsBoxName, Widget child){
+    var selectedCup = settingsBoxName.get('selected_cup', defaultValue: DefaultCupSize);
+    var selectedCupIcon = settingsBoxName.get('selected_cup_icon', defaultValue: DefaultCupIcon );
+    var drinked = settingsBoxName.get('drinked', defaultValue: 0);
 
     return Stack(
       children: [
@@ -99,16 +94,14 @@ class _HomeState extends State<Home> {
                   width: 120,
                   child: FlatButton(
                     onPressed: (){
-                      setState(() {
-                        drinked += selectedCup;
-                      });
+                      settingsBoxName.put('drinked', drinked + selectedCup);
                     },
                     onLongPress: (){
                       showModalBottomSheet(
                           backgroundColor: Colors.transparent,
                           context: context,
                           builder: (BuildContext bc) {
-                            return CupItemsList(prefs: prefs, notifyParent: refresh);
+                            return CupItemsList();
                           }
                       );
                     },
@@ -126,7 +119,7 @@ class _HomeState extends State<Home> {
                   child: GestureDetector(
                     onLongPress: (){
                       setState(() {
-                        drinked = 0;
+                        settingsBoxName.put('drinked', 0);
                       });
                     },
                     child: Text(
@@ -142,23 +135,6 @@ class _HomeState extends State<Home> {
         ),
       ]
     );
-  }
-
-
-  Future getPrefs() async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    // if(!prefs.containsKey('selected_cup')){
-    //   await prefs.setInt('selected_cup', 100).then(
-    //           (value) {
-    //             setState(){
-    //               this.prefs = prefs;
-    //             }
-    //           }
-    //   );
-    // }
-    setState(() {
-      this.prefs = prefs;
-    });
   }
 }
 

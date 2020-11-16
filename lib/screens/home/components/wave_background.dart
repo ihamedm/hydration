@@ -4,8 +4,8 @@ import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 
 class WaveBackground extends StatefulWidget {
-  final double toDrink;
-  final double drinked;
+  final int toDrink;
+  final int drinked;
 
   const WaveBackground({
     Key key,

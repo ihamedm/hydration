@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+const appTitle = "Water drinking reminder";
+const appVersion = 0.1;
 
 const settingsBoxName = 'settings';
 
@@ -19,5 +21,5 @@ const List cups = [
   {"value": 250, "label": "250 ml", "iconSvgFile": "milk-bottle.svg",},
   {"value": 300, "label": "300 ml", "iconSvgFile": "water-bottle.svg",},
 ];
-const CupDefaultSize = 100;
-const CupDefaultIcon = "cup.svg";
+const DefaultCupSize = 100;
+const DefaultCupIcon = "cup.svg";

@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/helpers.dart';
 import 'cup_item.dart';
 
-// @todo bring selected cup to first
-// @todo handle Exceptions
-
 class CupItemsList extends StatefulWidget {
-  final SharedPreferences prefs;
-  final Function notifyParent;
-
   const CupItemsList({
     Key key,
-    @required this.notifyParent, this.prefs,
   }) : super(key: key);
 
   @override
@@ -21,32 +15,33 @@ class CupItemsList extends StatefulWidget {
 }
 
 class _CupItemsListState extends State<CupItemsList> {
-  int selectedCupSize;
-  String selectedCupIcon;
-
+  Box settings;
 
   @override
   void initState() {
     super.initState();
-    selectedCupSize = widget.prefs.getInt('selected_cup') ?? CupDefaultSize;
+    settings = Hive.box(settingsBoxName);
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(10),
-      child: Container(
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(borderRadius: BorderRadius.all((Radius.circular(30))),color: Colors.white),
-          child: cupListGridView(),
-        )
+      child: ValueListenableBuilder(
+        valueListenable: settings.listenable(),
+        builder: _builderWithBox
+      )
     );
   }
 
 
-  cupListGridView<Widget>(){
-    return GridView.builder(
-      itemCount: cups.length,
+  Widget _builderWithBox(BuildContext context, Box settings, Widget child){
+    var selectedCupSize = settings.get('selected_cup', defaultValue: DefaultCupSize);
+    return Container(
+      padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(borderRadius: BorderRadius.all((Radius.circular(30))),color: Colors.white),
+      child: GridView.builder(
+        itemCount: cups.length,
         shrinkWrap: true,
         itemBuilder: (BuildContext context, int index) {
           return CupItem(
@@ -55,32 +50,17 @@ class _CupItemsListState extends State<CupItemsList> {
             label: cups[index]["label"],
             value: cups[index]["value"],
             onTapCallback: () {
-              saveSelectedCup([cups[index]["value"], cups[index]["iconSvgFile"]]).whenComplete(
-                (){
-                    widget.notifyParent();
-                    Future.delayed(Duration(milliseconds: 300), (){
-                      Navigator.of(context).pop();
-                    });
-                  }
-              );
+              settings.put('selected_cup_icon', cups[index]["iconSvgFile"]);
+              settings.put('selected_cup', cups[index]["value"]);
+              Future.delayed(Duration(milliseconds: 300), (){
+                Navigator.of(context).pop();
+              });
             },
           );
         },
-      gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+        gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+      ),
     );
 
-  }
-
-  Future saveSelectedCup(List<dynamic> selectedCup) async {
-    await widget.prefs
-        .setInt('selected_cup', selectedCup[0])
-        .whenComplete(() => print('prefs saved!'));
-
-    await widget.prefs.setString('selected_cup_icon', selectedCup[1]);
-
-
-    setState(() {
-      this.selectedCupSize = selectedCup[0];
-    });
   }
 }

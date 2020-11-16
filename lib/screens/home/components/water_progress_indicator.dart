@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:water_reminder/constants.dart';
 
 class WaterProgressIndicator extends StatefulWidget {
-  final double toDrink;
-  final double drinked;
+  final int toDrink;
+  final int drinked;
 
   const WaterProgressIndicator({
     Key key,
