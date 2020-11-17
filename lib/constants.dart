@@ -3,6 +3,7 @@ const appTitle = "Water drinking reminder";
 const appVersion = 0.1;
 
 const settingsBoxName = 'settings';
+const recordsBoxName = 'today_records';
 
 const PrimaryColor = Color(0xFF0089FF);
 const IconColor = Color(0xFFACACAC);

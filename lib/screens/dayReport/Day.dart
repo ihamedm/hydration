@@ -1,47 +1,27 @@
-import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:water_reminder/constants.dart';
+part 'Day.g.dart';
 
-class Day extends StatefulWidget {
-  final dynamic title;
 
-  const Day({
-    Key key,
-    @required this.title
-  }) : super(key: key);
+@HiveType(typeId: 1)
+class Day{
+  @HiveField(0)
+  DateTime day;
+  @HiveField(1)
+  int counter;
+  @HiveField(2)
+  int total;
+  @HiveField(3)
+  bool done;
 
-  @override
-  _DayState createState() => _DayState();
+  Day(this.day, this.counter, this.total, this.done);
 }
 
-class _DayState extends State<Day> {
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(50),
-          child: Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.arrow_back, color: IconColor,),
-                  onPressed: (){},
-                ),
-                Text(
-                  widget.title.toString(),
-                  style: Theme.of(context).textTheme.headline6.copyWith(color: PrimaryTextColor),
-                ),
-                SizedBox(width: 50,)
-              ],
-            ),
-          ),
-        ),
-        // body: FutureBuilder(
-        //   future: Hive.openBox(''),
-        // ),
-      ),
-    );
-  }
+@HiveType(typeId: 2)
+class Record{
+  @HiveField(0)
+  DateTime time;
+  @HiveField(1)
+  int cup;
+
+  Record(this.time, this.cup);
 }

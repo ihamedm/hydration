@@ -45,12 +45,11 @@ class _CupItemsListState extends State<CupItemsList> {
         shrinkWrap: true,
         itemBuilder: (BuildContext context, int index) {
           return CupItem(
-            iconSrc: "assets/icons/${cups[index]["iconSvgFile"]}",
+            iconSrc: getCupIconSrc(cups[index]["value"]),
             isActive: selectedCupSize == cups[index]["value"],
             label: cups[index]["label"],
             value: cups[index]["value"],
             onTapCallback: () {
-              settings.put('selected_cup_icon', cups[index]["iconSvgFile"]);
               settings.put('selected_cup', cups[index]["value"]);
               Future.delayed(Duration(milliseconds: 300), (){
                 Navigator.of(context).pop();

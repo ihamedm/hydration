@@ -3,7 +3,9 @@ import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:water_reminder/helpers.dart';
 import 'package:water_reminder/screens/dayReport/Day.dart';
+import 'package:water_reminder/screens/dayReport/DayReport.dart';
 import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/screens/home/components/cup_items_list.dart';
 import 'package:water_reminder/screens/home/components/water_progress_indicator.dart';
@@ -18,10 +20,13 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   DateTime now = new DateTime.now();
   String todayString = DateFormat.MMMMEEEEd().format(DateTime.now());
+  Box<Record> recordsBox;
+  int drinked;
 
   @override
   void initState() {
     super.initState();
+    recordsBox = Hive.box<Record>(recordsBoxName);
   }
 
   @override
@@ -35,7 +40,7 @@ class _HomeState extends State<Home> {
 
   Widget _builderWithBox(BuildContext context, Box settingsBoxName, Widget child){
     var selectedCup = settingsBoxName.get('selected_cup', defaultValue: DefaultCupSize);
-    var selectedCupIcon = settingsBoxName.get('selected_cup_icon', defaultValue: DefaultCupIcon );
+    var selectedCupIconSrc = getCupIconSrc(selectedCup);
     var drinked = settingsBoxName.get('drinked', defaultValue: 0);
 
     return Stack(
@@ -76,7 +81,7 @@ class _HomeState extends State<Home> {
                   child: GestureDetector(
                     onTap: (){
                       Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => Day(title: todayString))
+                          MaterialPageRoute(builder: (context) => DayReport())
                       );
                     },
                     child: WaterProgressIndicator(drinked: drinked,)
@@ -95,6 +100,7 @@ class _HomeState extends State<Home> {
                   child: FlatButton(
                     onPressed: (){
                       settingsBoxName.put('drinked', drinked + selectedCup);
+                      recordsBox.add(Record(new DateTime.now(),selectedCup));
                     },
                     onLongPress: (){
                       showModalBottomSheet(
@@ -110,7 +116,7 @@ class _HomeState extends State<Home> {
                       borderRadius: BorderRadius.all(Radius.circular(200)) ,
                     ),
                     child:
-                    SvgPicture.asset("assets/icons/$selectedCupIcon", color: Colors.white, height: 48, width: 48,)
+                    SvgPicture.asset(selectedCupIconSrc, color: Colors.white, height: 48, width: 48,)
                   ),
                 ),
 
@@ -120,6 +126,7 @@ class _HomeState extends State<Home> {
                     onLongPress: (){
                       setState(() {
                         settingsBoxName.put('drinked', 0);
+                        recordsBox.clear();
                       });
                     },
                     child: Text(
@@ -135,6 +142,9 @@ class _HomeState extends State<Home> {
         ),
       ]
     );
+
   }
+
+
 }
 
