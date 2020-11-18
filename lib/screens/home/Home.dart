@@ -8,7 +8,7 @@ import 'package:water_reminder/screens/dayReport/Day.dart';
 import 'package:water_reminder/screens/dayReport/DayReport.dart';
 import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/screens/home/components/cup_items_list.dart';
-import 'package:water_reminder/screens/home/components/water_progress_indicator.dart';
+import 'package:water_reminder/screens/home/components/water_progress_indicator2.dart';
 import 'package:water_reminder/screens/home/components/wave_background.dart';
 
 class Home extends StatefulWidget {
@@ -45,7 +45,7 @@ class _HomeState extends State<Home> {
 
     return Stack(
       children: [
-        WaveBackground(drinked: drinked),
+        WaveBackground(),
         SafeArea(
           child: Scaffold(
             backgroundColor: Colors.transparent,
@@ -84,7 +84,10 @@ class _HomeState extends State<Home> {
                           MaterialPageRoute(builder: (context) => DayReport())
                       );
                     },
-                    child: WaterProgressIndicator(drinked: drinked,)
+                    child: Container(
+                      color: Colors.grey[300],
+                      child: WaterProgressIndicator()
+                    )
                   ),
                 ),
                 Padding(
@@ -134,7 +137,8 @@ class _HomeState extends State<Home> {
                       style: TextStyle(fontSize: 14, color: Colors.black),
                     ),
                   ),
-                )
+                ),
+
               ],
             ),
           ),
@@ -147,4 +151,3 @@ class _HomeState extends State<Home> {
 
 
 }
-

@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:water_reminder/constants.dart';
+import 'package:water_reminder/screens/dayReport/Day.dart';
 
 class WaterProgressIndicator extends StatefulWidget {
-  final int toDrink;
-  final int drinked;
-
   const WaterProgressIndicator({
     Key key,
-    @required this.drinked,
-    this.toDrink = 2000,
   }) : super(key: key);
 
   @override
@@ -16,9 +13,14 @@ class WaterProgressIndicator extends StatefulWidget {
 }
 
 class _WaterProgressIndicatorState extends State<WaterProgressIndicator> with TickerProviderStateMixin {
+  Box settings = Hive.box(settingsBoxName);
+  Box<Record> records = Hive.box<Record>(recordsBoxName);
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
+    var toDrink = settings.get('to_drink', defaultValue: DefaultToDrink);
+    var drinked = settings.get('drinked', defaultValue: 0);
+
     return Container(
       width: screenSize.width,
       height: 40,
@@ -28,18 +30,18 @@ class _WaterProgressIndicatorState extends State<WaterProgressIndicator> with Ti
           AnimatedContainer(
             alignment: Alignment.center,
             duration: Duration(milliseconds: 200),
-            width: (widget.drinked / widget.toDrink) * screenSize.width,
+            width: (drinked / toDrink) * screenSize.width,
             height: 40,
             curve: Curves.bounceInOut,
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(200), color: PrimaryColor),
             child: Text(
-              "${widget.drinked.toInt()}",
+              "${drinked.toInt()}",
               style: Theme.of(context).textTheme.headline6.copyWith(color: Colors.white),
             ),
           ),
           Expanded(
               child: Text(
-                (widget.toDrink - widget.drinked).toInt().toString(),
+                (toDrink - drinked).toInt().toString(),
                 style: Theme.of(context).textTheme.headline6.copyWith(color: Colors.grey),
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.fade,
@@ -49,5 +51,6 @@ class _WaterProgressIndicatorState extends State<WaterProgressIndicator> with Ti
         ],
       ),
     );
+
   }
 }

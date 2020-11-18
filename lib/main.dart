@@ -3,7 +3,6 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/screens/dayReport/Day.dart';
-import 'package:water_reminder/screens/dayReport/DayReport.dart';
 import 'package:water_reminder/screens/generals/errorFullScreen.dart';
 import 'package:water_reminder/screens/generals/loadingFullScreen.dart';
 import 'package:water_reminder/screens/home/Home.dart';

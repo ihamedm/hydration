@@ -24,3 +24,4 @@ const List cups = [
 ];
 const DefaultCupSize = 100;
 const DefaultCupIcon = "cup.svg";
+const DefaultToDrink = 6000;
