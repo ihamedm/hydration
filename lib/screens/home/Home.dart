@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -8,7 +9,7 @@ import 'package:water_reminder/screens/dayReport/Day.dart';
 import 'package:water_reminder/screens/dayReport/DayReport.dart';
 import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/screens/home/components/cup_items_list.dart';
-import 'package:water_reminder/screens/home/components/water_progress_indicator2.dart';
+import 'package:water_reminder/screens/home/components/progress_path.dart';
 import 'package:water_reminder/screens/home/components/wave_background.dart';
 
 class Home extends StatefulWidget {
@@ -17,35 +18,52 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home>{
   DateTime now = new DateTime.now();
   String todayString = DateFormat.MMMMEEEEd().format(DateTime.now());
   Box<Record> recordsBox;
+  Box settingBox;
+
+  double _screenHeight;
+  double _screenWidth;
   int drinked;
+  int toDrink;
+
+  double percentValue;
+  double newPercentValue;
 
   @override
   void initState() {
     super.initState();
     recordsBox = Hive.box<Record>(recordsBoxName);
+    settingBox = Hive.box(settingsBoxName);
+    toDrink = settingBox.get('to_drinked', defaultValue: DefaultToDrink);
+    drinked = settingBox.get('drinked', defaultValue: 0);
+    percentValue = drinked / toDrink;
   }
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-        valueListenable: Hive.box(settingsBoxName).listenable(),
+        valueListenable: settingBox.listenable(),
         builder: _builderWithBox
     );
   }
 
 
-  Widget _builderWithBox(BuildContext context, Box settingsBoxName, Widget child){
-    var selectedCup = settingsBoxName.get('selected_cup', defaultValue: DefaultCupSize);
+  Widget _builderWithBox(BuildContext context, Box settingBox, Widget child){
+    // Hive box data
+    var selectedCup = settingBox.get('selected_cup', defaultValue: DefaultCupSize);
     var selectedCupIconSrc = getCupIconSrc(selectedCup);
-    var drinked = settingsBoxName.get('drinked', defaultValue: 0);
+    drinked = settingBox.get('drinked', defaultValue: 0);
+
+    // global data
+    _screenHeight = MediaQuery.of(context).size.height;
+    _screenWidth = MediaQuery.of(context).size.width;
 
     return Stack(
       children: [
-        WaveBackground(),
+        WaveBackground(percentage: percentValue,),
         SafeArea(
           child: Scaffold(
             backgroundColor: Colors.transparent,
@@ -76,33 +94,29 @@ class _HomeState extends State<Home> {
                 SizedBox(height: 10,),
                 Text("Today Drinks", style: Theme.of(context).textTheme.headline1.copyWith(color: PrimaryTextColor),),
                 SizedBox(height: 20,),
-                Padding(
-                  padding: EdgeInsets.only(right: 10, left: 10),
+                Container(
+                  width: _screenWidth,
+                  height: _screenHeight/3,
                   child: GestureDetector(
                     onTap: (){
                       Navigator.of(context).push(
                           MaterialPageRoute(builder: (context) => DayReport())
                       );
                     },
-                    child: Container(
-                      color: Colors.grey[300],
-                      child: WaterProgressIndicator()
-                    )
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Text(
-                    "drink normal water instead of cold water!",
-                    textAlign: TextAlign.center,
-                  ),
+                    child: ProgressIndicatorWidget(percentage: percentValue,)
+                  )
                 ),
                 SizedBox(
                   height: 120,
                   width: 120,
                   child: FlatButton(
                     onPressed: (){
-                      settingsBoxName.put('drinked', drinked + selectedCup);
+                      setState(() {
+                        newPercentValue = (drinked + selectedCup)/toDrink;
+                        // TODO: this value can change by value animating
+                        percentValue = newPercentValue;
+                      });
+                      settingBox.put('drinked', drinked + selectedCup);
                       recordsBox.add(Record(new DateTime.now(),selectedCup));
                     },
                     onLongPress: (){
@@ -128,7 +142,8 @@ class _HomeState extends State<Home> {
                   child: GestureDetector(
                     onLongPress: (){
                       setState(() {
-                        settingsBoxName.put('drinked', 0);
+                        settingBox.put('drinked', 0);
+                        percentValue = 0;
                         recordsBox.clear();
                       });
                     },

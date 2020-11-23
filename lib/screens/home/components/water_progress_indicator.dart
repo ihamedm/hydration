@@ -3,16 +3,16 @@ import 'package:hive/hive.dart';
 import 'package:water_reminder/constants.dart';
 import 'package:water_reminder/screens/dayReport/Day.dart';
 
-class WaterProgressIndicator extends StatefulWidget {
-  const WaterProgressIndicator({
+class WaterProgressIndicator1 extends StatefulWidget {
+  const WaterProgressIndicator1({
     Key key,
   }) : super(key: key);
 
   @override
-  _WaterProgressIndicatorState createState() => _WaterProgressIndicatorState();
+  _WaterProgressIndicator1State createState() => _WaterProgressIndicator1State();
 }
 
-class _WaterProgressIndicatorState extends State<WaterProgressIndicator> with TickerProviderStateMixin {
+class _WaterProgressIndicator1State extends State<WaterProgressIndicator1> with TickerProviderStateMixin {
   Box settings = Hive.box(settingsBoxName);
   Box<Record> records = Hive.box<Record>(recordsBoxName);
   @override

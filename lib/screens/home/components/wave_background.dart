@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:water_reminder/constants.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 
 class WaveBackground extends StatefulWidget {
+  final double percentage;
   const WaveBackground({
-    Key key,
+    Key key, @required this.percentage,
   }) : super(key: key);
   @override
   _WaveBackgroundState createState() => _WaveBackgroundState();
 }
 
-class _WaveBackgroundState extends State<WaveBackground> with TickerProviderStateMixin{
-  Box settings = Hive.box(settingsBoxName);
-
+class _WaveBackgroundState extends State<WaveBackground>{
   @override
   void initState() {
     super.initState();
@@ -22,9 +20,7 @@ class _WaveBackgroundState extends State<WaveBackground> with TickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    var toDrink = settings.get('to_drink', defaultValue: DefaultToDrink);
-    var drinked = settings.get('drinked', defaultValue: 0);
-    var percentage = (toDrink - drinked ) / toDrink;
+    var percentage = 1 - widget.percentage;
     return WaveWidget(
       config: CustomConfig(
         gradients: [

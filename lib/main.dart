@@ -8,7 +8,6 @@ import 'package:water_reminder/screens/generals/loadingFullScreen.dart';
 import 'package:water_reminder/screens/home/Home.dart';
 import 'package:water_reminder/themes.dart';
 
-
 void main() async{
   await Hive.initFlutter();
   Hive.registerAdapter(RecordAdapter());
